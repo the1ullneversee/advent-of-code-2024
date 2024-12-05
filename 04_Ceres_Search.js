@@ -12,7 +12,6 @@ function gatherDiagValue(wordGrid, currRow, currCol, direction, targetWordLength
     let chunk = "";
     const height = wordGrid.length;
     const width = wordGrid[0].length;
-
     for (let idx = 0; idx < targetWordLength; idx++) {
         if (direction === "downRight") {
             let rowIndex = currRow + idx;
@@ -37,6 +36,19 @@ function gatherDiagValue(wordGrid, currRow, currCol, direction, targetWordLength
             let colIndex = currCol - idx;
             if (rowIndex < 0 || colIndex < 0) return chunk;
             chunk += wordGrid[rowIndex][colIndex];
+
+        }
+        if (direction === "up") {
+            let rowIndex = currRow - idx;
+            let colIndex = currCol;
+            if (rowIndex < 0) return chunk;
+            chunk += wordGrid[rowIndex][colIndex];
+        }
+        if (direction === "down") {
+            let rowIndex = currRow + idx;
+            let colIndex = currCol;
+            if (rowIndex >= height) return chunk;
+            chunk += wordGrid[rowIndex][colIndex];
         }
     }
     return chunk;
@@ -45,6 +57,16 @@ function gatherDiagValue(wordGrid, currRow, currCol, direction, targetWordLength
 function findXmas(wordGrid) {
     const targetWord = "XMAS";
     let xmasCount = 0;
+    const positions = {
+        xb: 0,
+        xf: 0,
+        xur: 0,
+        xul: 0,
+        xdl: 0,
+        xdr: 0,
+        wu: 0,
+        wd: 0
+    };
     // go through each row
     for (let row = 0; row < wordGrid.length; row++) {
         // go through each column
@@ -56,30 +78,46 @@ function findXmas(wordGrid) {
         let xul = 0;
         let xdl = 0;
         let xdr = 0;
+        let wu = 0;
+        let wd = 0;
         for (let col = 0; col < word.length; col++) {
             let wordForwards = word.slice(col, col+targetWord.length)
-            let wordBackwards = "";
-            for (let idx = col; idx > 0 && idx > col - targetWord.length; col--) {
-                wordBackwards += word[idx]
-            }
-            //let wordBackwards = word.slice(col-targetWord.length, col);
-            //let wordBackwards = [...word.slice(col-targetWord.length, col)].reverse().join('');
+            let wordBackwards = [...word.slice(col - 4, col)].reverse().join('');
+            let wordDown = gatherDiagValue(wordGrid, row, col, "down", targetWord.length);
+            let wordUp = gatherDiagValue(wordGrid, row, col, "up", targetWord.length);
             let wordDownLeftDiag = gatherDiagValue(wordGrid, row, col, "downLeft", targetWord.length);
             let wordDownRightDiag = gatherDiagValue(wordGrid, row, col, "downRight", targetWord.length);
             let wordUpLeftDiag = gatherDiagValue(wordGrid, row, col, "upLeft", targetWord.length);
             let wordUpRightDiag = gatherDiagValue(wordGrid, row, col, "upRight", targetWord.length);
-            //console.log(`backwards ${wordBackwards} forwards ${wordForwards} upLeft ${wordUpLeftDiag} upRight ${wordUpRightDiag} downLeft ${wordDownLeftDiag} downRight ${wordDownRightDiag}`);
             if (wordForwards === targetWord) xf++;
-            if (wordBackwards === targetWord) xb++;
+            if (wordForwards === "SAMX") {
+                xb++;
+            }
             if (wordDownRightDiag === targetWord) xdr++;
             if (wordDownLeftDiag === targetWord) xdl++;
-            if (wordUpLeftDiag === targetWord) xul++;
+            if (wordUpLeftDiag === targetWord) {
+                xul++;
+            }
             if (wordUpRightDiag === targetWord) xur++;
+            if (wordUp === targetWord) wu++;
+            if (wordDown === targetWord) wd++;
         }
-        console.log(`row ${row+1}  ${wordGrid[row]}`)
-        console.log(`found forward ${xf} back ${xb} dr ${xdr} dl ${xdl} ul ${xul} ur ${xur}`);
-        xmasCount += xf + xb + xdr + xdl + xdr + xul + xur;
+        positions['xf'] += xf;
+        positions['xur'] += xur;
+        positions['xdl'] += xdl;
+        positions['xdr'] += xdr;
+        positions['xb'] += xb;
+        positions['xul'] += xul;
+        positions['wu'] += wu;
+        positions['wd'] += wd;
+        let rowTotal = xf + xb + xdr + xdl + xul + xur + wu + wd;
+        xmasCount += rowTotal;
+        //console.log(`row ${row+1} found forward ${xf} back ${xb} up ${wu} down ${wd} down right ${xdr} down left ${xdl} up left ${xul} up right ${xur} | with row total ${rowTotal}`);
+        if (xb > 0) {
+            console.log(`row ${row + 1} back ${xb}`);
+        }
     }
+    console.log(positions);
 
     return xmasCount;
 }
