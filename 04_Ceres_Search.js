@@ -1,6 +1,6 @@
 
 const fs = require('fs');
-const input = fs.readFileSync('04_input.txt', 'utf-8');
+const input = fs.readFileSync('./inputs/04_input.txt', 'utf-8');
 const lines = input.split('\n');
 let wordGrid = [];
 for (let i = 0; i < lines.length; i++) {
