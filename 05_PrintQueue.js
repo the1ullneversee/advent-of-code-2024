@@ -75,17 +75,39 @@ for (let update of validUpdates) {
     midSum += update[mid];
 }
 
-for (let update of invalidUpdates) {
-    let keysWithCount = [];
+function validateUpdates(update) {
+    let valid = true;
     for (let idx = 0; idx < update.length; idx++) {
         let currNum = update[idx];
-        for (let k  = 0; k < update.length; k++) {
+        for (let k = idx; k < update.length; k++) {
             if (currNum !== update[k]) {
-
+                let key = `${update[k]}|${currNum}`;
+                if (dpMapKeys.has(key)) {
+                    console.log(`found key ${key} update [${idx}] is invalid position given [${k}] in updates ${update}`);
+                    update[idx] = update[k]
+                    update[k] = currNum;
+                    return update;
+                }
             }
         }
-        let keys = update.slice(idx + 1).map(x => `${currNum}|${x}`);
-        console.log(keys);
+
     }
+    return null;
 }
-console.log(midSum);
+
+let midSumInval = 0;
+for (let update of invalidUpdates) {
+    let valid = false;
+    while (!valid) {
+        let modUpdate = validateUpdates(update);
+        if (modUpdate === null) {
+            valid = true;
+            break;
+        }
+        update = modUpdate;
+    }
+    let mid = Math.floor(update.length / 2);
+    midSumInval += update[mid];
+    console.log(update);
+}
+console.log(midSumInval);
