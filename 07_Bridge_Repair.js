@@ -25,7 +25,7 @@ for (let line of lines) {
 
 function generatePermutations(spaces) {
     const result = [];
-    const operators = ["+", "*"];
+    const operators = ["+", "*", "||"];
 
     function permute(current) {
         if (current.length === spaces) {
@@ -46,7 +46,7 @@ function generatePermutations(spaces) {
 function validCommand(operation, commandChain) {
     let operationValues = operation.values.slice();
     let runningSum = operationValues.shift();
-
+    let currIndex = 1;
     for (let value of operationValues) {
         let currentOperation = commandChain.shift();
         if (currentOperation === '+') {
@@ -55,11 +55,14 @@ function validCommand(operation, commandChain) {
         if (currentOperation === '*') {
             runningSum *= value;
         }
+        if (currentOperation === '||') {
+            runningSum = Number(runningSum.toString() + value.toString());
+        }
         if (runningSum > operation.sum) {
             break;
         }
     }
-    console.log(`runningSum ${runningSum} target ${operation.sum}`);
+    //console.log(`runningSum ${runningSum} target ${operation.sum}`);
     return runningSum === operation.sum;
 }
 
@@ -68,9 +71,9 @@ function testOperators(operation) {
     let spaces = operation.values.length -1;
     let permutations = generatePermutations(spaces);
     for (let permutation of permutations) {
-        console.log(`looking at ${permutation}`);
+        //console.log(`looking at ${permutation}`);
         if (validCommand(operation, permutation)) {
-            console.log(`${permutation} is valid`);
+            console.log(`${permutation} is valid for ${operation.values}`);
             return operation.sum;
         }
     }
